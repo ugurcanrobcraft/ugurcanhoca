@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CodeCraft AI - Çoklu Model Kod Eğitmeni</title>
+    <style>
+        body { font-family: sans-serif; background-color: #0b0f19; color: #f8fafc; margin: 0; padding: 15px; display: flex; flex-direction: column; align-items: center; }
+        .container { width: 100%; max-width: 650px; background: #1e293b; padding: 20px; border-radius: 14px; box-shadow: 0 4px 20px rgba(0,0,0,0.6); }
+        h1 { color: #38bdf8; text-align: center; font-size: 22px; margin-bottom: 5px; }
+        .subtitle { text-align: center; color: #94a3b8; font-size: 13px; margin-bottom: 15px; }
+        
+        .settings-panel { background: #0f172a; padding: 12px; border-radius: 10px; margin-bottom: 15px; display: flex; flex-direction: column; gap: 10px; }
+        .setting-row { display: flex; justify-content: space-between; align-items: center; font-size: 14px; }
+        select, input { background: #334155; border: none; color: white; padding: 8px; border-radius: 6px; font-size: 13px; width: 60%; }
+        
+        .lang-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+        button { background: #334155; color: white; border: none; padding: 12px; border-radius: 8px; font-size: 15px; cursor: pointer; transition: 0.2s; font-weight: bold; }
+        button:hover { background: #0284c7; }
+        
+        .ders-kutusu { margin-top: 15px; background: #0f172a; padding: 15px; border-radius: 10px; display: none; line-height: 1.6; font-size: 14px; }
+        pre { background: #1e293b; padding: 10px; border-radius: 6px; overflow-x: auto; color: #f472b6; font-family: monospace; }
+        code { background: #334155; padding: 2px 5px; border-radius: 4px; color: #38bdf8; }
+        
+        .ai-loading { color: #fbbf24; text-align: center; font-weight: bold; margin: 20px 0; display: none; }
+        .geri-btn { background: #e11d48; margin-top: 15px; width: 100%; }
+        .puan { color: #4ade80; font-weight: bold; }
+        .top-stats { display: flex; justify-content: space-between; background: #0f172a; padding: 10px 15px; border-radius: 8px; margin-bottom: 10px; font-size: 14px; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>🚀 CodeCraft AI Studio</h1>
+        <div class="subtitle">Seçtiğin Yapay Zeka ile Kodlama Öğren</div>
+
+        <div class="top-stats">
+            <div>Öğrenci XP: <span class="puan" id="puanGosterge">0</span></div>
+            <div style="color: #94a3b8; font-size: 12px;">Tarayıcı Tabanlı Güvenli 🔒</div>
+        </div>
+
+        <!-- Yapay Zeka ve API Seçim Paneli -->
+        <div class="settings-panel">
+            <div class="setting-row">
+                <label>🤖 AI Modeli:</label>
+                <select id="aiModel" onchange="modelDegisti()">
+                    <option value="openai">ChatGPT (GPT-4o-mini)</option>
+                    <option value="gemini">Gemini (3.5 Flash-Lite)</option>
+                    <option value="anthropic">Claude (3.5 Sonnet)</option>
+                    <option value="xai">Grok (xAI / OpenRouter)</option>
+                </select>
+            </div>
+            <div class="setting-row">
+                <label id="keyLabel">🔑 API Key Girin:</label>
+                <input type="password" id="apiKey" placeholder="Seçilen modelin anahtarı zorunludur...">
+            </div>
+        </div>
+
+        <!-- Dil Seçim Grid -->
+        <div class="lang-grid" id="menu">
+            <button onclick="dersIste('HTML')">🌐 HTML</button>
+            <button onclick="dersIste('CSS')">🎨 CSS</button>
+            <button onclick="dersIste('JavaScript')">📜 JavaScript</button>
+            <button onclick="dersIste('Python')">🐍 Python</button>
+            <button onclick="dersIste('C++')">⚙️ C++</button>
+            <button onclick="dersIste('C#')">🔷 C#</button>
+            <button onclick="dersIste('@jubbio/core (Jubbio Bot API)')">🤖 @jubbio/core</button>
+        </div>
+
+        <div class="ai-loading" id="loading">⚡ Seçilen yapay zeka özel ders içeriğini hazırlıyor...</div>
+
+        <div class="ders-kutusu" id="dersAlani">
+            <h3 id="dersBaslik" style="color: #38bdf8; margin-top:0;"></h3>
+            <div id="dersIcerik"></div>
+            <button onclick="goreviTamamla()" style="background: #16a34a; width: 100%; margin-top: 15px;">Dersi Tamamla (+25 XP)</button>
+            <button class="geri-btn" onclick="menuyeDon()">Menüye Dön</button>
+        </div>
+    </div>
+
+    <script>
+        let puan = localStorage.getItem('codecraft_xp') ? parseInt(localStorage.getItem('codecraft_xp')) : 0;
+        document.getElementById('puanGosterge').innerText = puan;
+
+        function modelDegisti() {
+            const model = document.getElementById('aiModel').value;
+            const label = document.getElementById('keyLabel');
+            if(model === 'openai') label.innerText = "🔑 OpenAI Key:";
+            else if(model === 'gemini') label.innerText = "🔑 Gemini Key:";
+            else if(model === 'anthropic') label.innerText = "🔑 Claude Key:";
+            else if(model === 'xai') label.innerText = "🔑 Grok/OpenRouter Key:";
+        }
+
+        async function dersIste(dil) {
+            const apiKey = document.getElementById('apiKey').value.trim();
+            const modelSecimi = document.getElementById('aiModel').value;
+
+            // ZORUNLU API KEY KONTROLÜ
+            if(!apiKey) {
+                alert(`⚠️ Seçtiğiniz model (${modelSecimi.toUpperCase())} için API anahtarı girmek ZORUNLUDUR! Lütfen yukarıdaki alana anahtarınızı yazın.`);
+                return;
+            }
+
+            document.getElementById('menu').style.display = 'none';
+            document.getElementById('loading').style.display = 'block';
+
+            // KUSURSUZ SİSTEM PROMPTU
+            const sistemPromptu = `Sen kıdemli, sabırlı ve elit bir yazılım eğiticisisin. Öğrenciye ${dil} programlama dili hakkında kısa geçiştirmeyen, derinlemesine, açıklayıcı, profesyonel kod örnekleri ve pratik ipuçları içeren harika bir mini ders hazırla. 
+            Önemli Kurallar: 
+            1. Yanıtı ham HTML formatında (<b>, <p>, <code>, <pre> etiketleri kullanarak) ver, asla markdown kod blokları (üç tırnak) kullanma.
+            2. Eğer dil '@jubbio/core (Jubbio Bot API)' ise kesinlikle Jubbio ekosistemine özel Client başlatma, event dinleme ve komut mantığını detaylı anlat.`;
+
+            let aiCevap = "";
+
+            try {
+                if (modelSecimi === 'openai') {
+                    const res = await fetch("https://api.openai.com/v1/chat/completions", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${apiKey}` },
+                        body: JSON.stringify({
+                            model: "gpt-4o-mini",
+                            messages: [{ role: "user", content: sistemPromptu }],
+                            temperature: 0.7
+                        })
+                    });
+                    const data = await res.json();
+                    if(data.error) throw new Error(data.error.message);
+                    aiCevap = data.choices[0].message.content;
+
+                } else if (modelSecimi === 'gemini') {
+                    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=${apiKey}`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ contents: [{ parts: [{ text: sistemPromptu }] }] })
+                    });
+                    const data = await res.json();
+                    if(data.error) throw new Error(data.error.message);
+                    aiCevap = data.candidates[0].content.parts[0].text;
+
+                } else if (modelSecimi === 'anthropic') {
+                    const res = await fetch("https://api.anthropic.com/v1/messages", {
+                        method: "POST",
+                        headers: { 
+                            "Content-Type": "application/json", 
+                            "x-api-key": apiKey,
+                            "anthropic-version": "2023-06-01",
+                            "anthropic-dangerous-direct-browser-access": "true"
+                        },
+                        body: JSON.stringify({
+                            model: "claude-3-5-sonnet-20241022",
+                            max_tokens: 1500,
+                            messages: [{ role: "user", content: sistemPromptu }]
+                        })
+                    });
+                    const data = await res.json();
+                    if(data.error) throw new Error(data.error.message);
+                    aiCevap = data.content[0].text;
+
+                } else if (modelSecimi === 'xai') {
+                    const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${apiKey}` },
+                        body: JSON.stringify({
+                            model: "x-ai/grok-2",
+                            messages: [{ role: "user", content: sistemPromptu }]
+                        })
+                    });
+                    const data = await res.json();
+                    if(data.error) throw new Error(data.error.message);
+                    aiCevap = data.choices[0].message.content;
+                }
+
+                document.getElementById('dersBaslik').innerText = `${dil} - ${modelSecimi.toUpperCase()} Özel Eğitimi`;
+                document.getElementById('dersIcerik').innerHTML = aiCevap;
+
+            } catch (err) {
+                document.getElementById('dersBaslik').innerText = `⚠️ Bağlantı Hatası`;
+                document.getElementById('dersIcerik').innerHTML = `
+                    <p>Yapay zeka ile iletişim kurulamadı. Olası Sebepler:</p>
+                    <ul>
+                        <li>Girdiğiniz API anahtarı hatalı veya süresi dolmuş olabilir.</li>
+                        <li>Seçtiğiniz model ile anahtar uyuşmuyor olabilir.</li>
+                    </ul>
+                    <p><b>Hata Detayı:</b> ${err.message}</p>
+                `;
+            }
+
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('dersAlani').style.display = 'block';
+        }
+
+        function menuyeDon() {
+            document.getElementById('dersAlani').style.display = 'none';
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('menu').style.display = 'grid';
+        }
+
+        function goreviTamamla() {
+            puan += 25;
+            localStorage.setItem('codecraft_xp', puan);
+            document.getElementById('puanGosterge').innerText = puan;
+            alert("Tebrikler! Görev tamamlandı ve 25 XP hesabına eklendi.");
+            menuyeDon();
+        }
+    </script>
+</body>
+</html>
+
