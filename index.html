@@ -25,7 +25,7 @@
 
         /* Sohbet Alanı */
         .chat-box { flex: 1; background: #0f172a; border-radius: 8px; padding: 8px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; margin-bottom: 8px; border: 1px solid #334155; }
-        .message { padding: 8px 10px; border-radius: 8px; max-width: 88%; line-height: 1.4; font-size: 12px; word-wrap: break-word; }
+        .message { padding: 8px 10px; border-radius: 8px; max-width: 88%; line-height: 1.4; font-size: 12px; word-wrap: break-word; white-space: pre-wrap; }
         .user-msg { background: #0284c7; color: white; align-self: flex-end; }
         .ai-msg { background: #334155; color: #f8fafc; align-self: flex-start; width: 100%; box-sizing: border-box; }
         
@@ -108,23 +108,23 @@
             </div>
             <div class="doc-section">
                 <h4>1. OpenAI (ChatGPT) API Key Nasıl Alınır?</h4>
-                <p>1. <b>platform.openai.com</b> adresine git ve kayıt ol.<br>2. Sağ üst profilden <b>"API keys"</b> sekmesine tıkla.<br>3. <b>"+ Create new secret key"</b> butonuna basarak anahtarını kopyala.</p>
+                <p>1. platform.openai.com adresine git ve kayıt ol.<br>2. Sağ üst profilden "API keys" sekmesine tıkla.<br>3. "+ Create new secret key" butonuna basarak anahtarını kopyala.</p>
             </div>
             <div class="doc-section">
                 <h4>2. Gemini API Key Nasıl Alınır?</h4>
-                <p>1. <b>aistudio.google.com</b> adresine git.<br>2. Google hesabınla giriş yap ve <b>"Get API Key"</b> butonuna basarak ücretsiz anahtarını oluştur.</p>
+                <p>1. aistudio.google.com adresine git.<br>2. Google hesabınla giriş yap ve "Get API Key" butonuna basarak ücretsiz anahtarını oluştur.</p>
             </div>
             <div class="doc-section">
                 <h4>3. Claude (Anthropic) API Key Nasıl Alınır?</h4>
-                <p>1. <b>console.anthropic.com</b> adresine git.<br>2. Konsol panelinden <b>"API Keys"</b> bölümüne girip anahtarını üret.</p>
+                <p>1. console.anthropic.com adresine git.<br>2. Konsol panelinden "API Keys" bölümüne girip anahtarını üret.</p>
             </div>
             <div class="doc-section">
                 <h4>4. Groq API Key Nasıl Alınır?</h4>
-                <p>1. <b>console.groq.com</b> adresine git.<br>2. Panelden <b>"API Keys"</b> sekmesine girip anahtarını oluştur.</p>
+                <p>1. console.groq.com adresine git.<br>2. Panelden "API Keys" sekmesine girip anahtarını oluştur.</p>
             </div>
             <div class="doc-section">
                 <h4>5. Grok (xAI / OpenRouter) API Key Nasıl Alınır?</h4>
-                <p>1. <b>openrouter.ai</b> adresine kaydol.<br>2. Hesap ayarlarından <b>"Keys"</b> kısmına gidip yeni bir anahtar oluştur.</p>
+                <p>1. openrouter.ai adresine kaydol.<br>2. Hesap ayarlarından "Keys" kısmına gidip yeni bir anahtar oluştur.</p>
             </div>
         </div>
     </div>
@@ -150,25 +150,23 @@
         function rehberAc() { document.getElementById('docsModal').style.display = 'flex'; }
         function rehberKapat() { document.getElementById('docsModal').style.display = 'none'; }
 
-        function formatlanmisMesaj(htmlIcerik) {
-            let tempDiv = document.createElement('div');
-            tempDiv.innerHTML = htmlIcerik;
+        function formatlanmisMesaj(metin) {
+            const div = document.createElement('div');
+            div.className = "message ai-msg";
 
-            let kodBloklari = tempDiv.innerHTML.match(/```[\s\S]*?```/g);
-            if (kodBloklari) {
-                kodBloklari.forEach(blok => {
-                    let temizKod = blok.replace(/```[a-z]*/g, '').replace(/```/g, '').trim();
-                    let benzersizId = 'code_' + Math.random().toString(36).substr(2, 9);
-                    let kutuHtml = `
-                        <div class="code-container">
-                            <button class="copy-btn" onclick="kopyala('${benzersizId}')">📄 Kopyala</button>
-                            <pre><code id="${benzersizId}">${escapeHtml(temizKod)}</code></pre>
-                        </div>
-                    `;
-                    tempDiv.innerHTML = tempDiv.innerHTML.replace(blok, kutuHtml);
-                });
-            }
-            return tempDiv.innerHTML;
+            // Markdown ```kod``` bloklarını şık kopyalanabilir kutulara çevir
+            let islenmis = metin.replace(/```([a-z]*)\n([\s\S]*?)```/g, function(match, lang, kod) {
+                let id = 'code_' + Math.random().toString(36).substr(2, 9);
+                return `
+                    <div class="code-container">
+                        <button class="copy-btn" onclick="kopyala('${id}')">📄 Kopyala</button>
+                        <pre><code id="${id}">${escapeHtml(kod.trim())}</code></pre>
+                    </div>
+                `;
+            });
+
+            div.innerHTML = islenmis;
+            return div;
         }
 
         function escapeHtml(text) {
@@ -187,14 +185,15 @@
 
         function mesajEkle(metin, sinif) {
             const chatBox = document.getElementById('chatBox');
-            const div = document.createElement('div');
-            div.className = `message ${sinif}`;
             if(sinif === 'ai-msg') {
-                div.innerHTML = formatlanmisMesaj(metin);
+                const aiDiv = formatlanmisMesaj(metin);
+                chatBox.appendChild(aiDiv);
             } else {
-                div.innerText = metin;
+                const userDiv = document.createElement('div');
+                userDiv.className = `message ${sinif}`;
+                userDiv.innerText = metin;
+                chatBox.appendChild(userDiv);
             }
-            chatBox.appendChild(div);
             chatBox.scrollTop = chatBox.scrollHeight;
         }
 
@@ -203,13 +202,13 @@
         ÖZEL BİLGİ - JUBBIO BOT MODU:
         Eğer kullanıcı "Jubbio Bot" seçtiyse veya Jubbio hakkında soru sorarsa şu bilgileri baz alarak öğretim yap:
         - Jubbio, Global bir sohbet platformudur! Geliştiricisi: İlkay'dır.
-        - Developer Portal adresi: https://jubbio.com/dev
+        - Developer Portal adresi: [https://jubbio.com/dev](https://jubbio.com/dev)
         - Kullanılan temel kütüphaneler: @jubbio/core ve @jubbio/voice kütüphaneleridir.
         - Önerilen ve en yaygın kodlama dili: Node.js (JavaScript) ortamıdır.
         - Kullanıcıya Jubbio bot altyapısı kurma, komut yazma ve event dinleme konusunda Node.js ile profesyonel örnekler ver.
 
         Önemli Kurallar:
-        1. Kod örneklerini verirken ```javascript ... ``` veya ```python ... ``` gibi markdown blokları kullan. Sistem bunları otomatik olarak kopyala butonlu şık kutulara dönüştürecektir.
+        1. Kod örneklerini verirken mutlaka \`\`\`javascript ... \`\`\` veya \`\`\`python ... \`\`\` gibi markdown blokları kullan.
         2. Arkadaş canlısı, yönlendirici ve net ol. Kodların mantığını satır satır açıkla.`;
 
         async function mesajGonder() {
@@ -242,7 +241,7 @@
                 const tamPrompt = `${SYSTEM_PROMPT}\n\nÖğrencinin Seçtiği Odak Konu / Dil: ${aktifDil}\nÖğrencinin Mesajı / İsteği: ${kullaniciMesaji}`;
 
                 if (modelSecimi === 'openai') {
-                    const res = await fetch("https://api.openai.com/v1/chat/completions", {
+                    const res = await fetch("[https://api.openai.com/v1/chat/completions](https://api.openai.com/v1/chat/completions)", {
                         method: "POST",
                         headers: { "Content-Type": "application/json", "Authorization": `Bearer ${apiKey}` },
                         body: JSON.stringify({
@@ -256,7 +255,7 @@
                     aiCevap = data.choices[0].message.content;
 
                 } else if (modelSecimi === 'gemini') {
-                    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=${apiKey}`, {
+                    const res = await fetch(`[https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=$](https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=$){apiKey}`, {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({ 
@@ -269,7 +268,7 @@
                     aiCevap = data.candidates[0].content.parts[0].text;
 
                 } else if (modelSecimi === 'anthropic') {
-                    const res = await fetch("https://api.anthropic.com/v1/messages", {
+                    const res = await fetch("[https://api.anthropic.com/v1/messages](https://api.anthropic.com/v1/messages)", {
                         method: "POST",
                         headers: { 
                             "Content-Type": "application/json", 
@@ -289,7 +288,7 @@
                     aiCevap = data.content[0].text;
 
                 } else if (modelSecimi === 'groq') {
-                    const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                    const res = await fetch("[https://api.groq.com/openai/v1/chat/completions](https://api.groq.com/openai/v1/chat/completions)", {
                         method: "POST",
                         headers: { "Content-Type": "application/json", "Authorization": `Bearer ${apiKey}` },
                         body: JSON.stringify({
@@ -306,7 +305,7 @@
                     aiCevap = data.choices[0].message.content;
 
                 } else if (modelSecimi === 'xai') {
-                    const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+                    const res = await fetch("[https://openrouter.ai/api/v1/chat/completions](https://openrouter.ai/api/v1/chat/completions)", {
                         method: "POST",
                         headers: { "Content-Type": "application/json", "Authorization": `Bearer ${apiKey}` },
                         body: JSON.stringify({
@@ -333,3 +332,4 @@
     </script>
 </body>
 </html>
+
