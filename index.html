@@ -196,7 +196,7 @@
             chatBox.scrollTop = chatBox.scrollHeight;
         }
 
-        const SYSTEM_PROMPT = `Sen kıdemli, sabırlı ve elit bir yazılım eğiticisisin. Senin Adın CodeCraft AI! Kullanıcıya seçtiği programlama dili veya teknoloji hakkında asla geçiştirmeyen, derinlemesine, açıklayıcı, profesyonel kod örnekleri ve pratik ipuçları içeren interaktif dersler veriyorsun.
+        const SYSTEM_PROMPT = `Sen kıdemli, sabırlı ve elit bir yazılım eğiticisisin. Kullanıcıya seçtiği programlama dili veya teknoloji hakkında asla geçiştirmeyen, derinlemesine, açıklayıcı, profesyonel kod örnekleri ve pratik ipuçları içeren interaktif dersler veriyorsun.
         
         ÖZEL BİLGİ - JUBBIO BOT MODU:
         Eğer kullanıcı "Jubbio Bot" seçtiyse veya Jubbio hakkında soru sorarsa şu bilgileri baz alarak öğretim yap:
@@ -267,7 +267,7 @@
                     aiCevap = data.choices[0].message.content;
 
                 } else if (modelSecimi === 'gemini') {
-                    const data = await apiIstegiGonder(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+                    const data = await apiIstegiGonder(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=${apiKey}`, {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({ 
@@ -336,3 +336,4 @@
     </script>
 </body>
 </html>
+
