@@ -3,42 +3,59 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CodeCraft AI - Kodlama Eğitmeni</title>
+    <title>CodeCraft AI Studio</title>
     <style>
-        body { font-family: sans-serif; background-color: #0b0f19; color: #f8fafc; margin: 0; padding: 15px; display: flex; flex-direction: column; align-items: center; height: 100vh; box-sizing: border-box; }
-        .container { width: 100%; max-width: 700px; height: 100%; background: #1e293b; padding: 15px; border-radius: 14px; box-shadow: 0 4px 20px rgba(0,0,0,0.6); display: flex; flex-direction: column; }
-        h1 { color: #38bdf8; text-align: center; font-size: 20px; margin: 0 0 5px 0; }
-        .subtitle { text-align: center; color: #94a3b8; font-size: 12px; margin-bottom: 10px; }
+        body { font-family: sans-serif; background-color: #0b0f19; color: #f8fafc; margin: 0; padding: 10px; display: flex; flex-direction: column; align-items: center; height: 100vh; box-sizing: border-box; }
+        .container { width: 100%; max-width: 700px; height: 100%; background: #1e293b; padding: 12px; border-radius: 14px; box-shadow: 0 4px 20px rgba(0,0,0,0.6); display: flex; flex-direction: column; }
+        h1 { color: #38bdf8; text-align: center; font-size: 18px; margin: 0 0 3px 0; }
+        .subtitle { text-align: center; color: #94a3b8; font-size: 11px; margin-bottom: 8px; }
         
-        .settings-panel { background: #0f172a; padding: 10px; border-radius: 8px; margin-bottom: 10px; display: flex; flex-direction: column; gap: 8px; }
-        .setting-row { display: flex; justify-content: space-between; align-items: center; font-size: 13px; }
-        select, input { background: #334155; border: none; color: white; padding: 6px; border-radius: 6px; font-size: 12px; width: 60%; }
+        .settings-panel { background: #0f172a; padding: 8px; border-radius: 8px; margin-bottom: 8px; display: flex; flex-direction: column; gap: 6px; }
+        .setting-row { display: flex; justify-content: space-between; align-items: center; font-size: 12px; }
+        select, input { background: #334155; border: none; color: white; padding: 5px; border-radius: 6px; font-size: 11px; width: 58%; }
         
-        /* Dil Seçim Butonları (Güncellendi) */
-        .lang-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 10px; }
-        .lang-btn { background: #334155; color: white; border: none; padding: 8px; border-radius: 6px; font-size: 12px; cursor: pointer; font-weight: bold; transition: 0.2s; }
+        /* Buton Gridleri */
+        .lang-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; margin-bottom: 8px; }
+        .lang-btn { background: #334155; color: white; border: none; padding: 6px; border-radius: 6px; font-size: 11px; cursor: pointer; font-weight: bold; transition: 0.2s; }
         .lang-btn:hover { background: #0284c7; }
+        .lang-btn.jubbio { background: #7c3aed; }
+        .lang-btn.jubbio:hover { background: #6d28d9; }
+        .lang-btn.docs-btn { background: #0d9488; }
+        .lang-btn.docs-btn:hover { background: #0f766e; }
 
         /* Sohbet Alanı */
-        .chat-box { flex: 1; background: #0f172a; border-radius: 8px; padding: 10px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; margin-bottom: 10px; border: 1px solid #334155; }
-        .message { padding: 10px; border-radius: 8px; max-width: 85%; line-height: 1.4; font-size: 13px; word-wrap: break-word; }
+        .chat-box { flex: 1; background: #0f172a; border-radius: 8px; padding: 8px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; margin-bottom: 8px; border: 1px solid #334155; }
+        .message { padding: 8px 10px; border-radius: 8px; max-width: 88%; line-height: 1.4; font-size: 12px; word-wrap: break-word; }
         .user-msg { background: #0284c7; color: white; align-self: flex-end; }
-        .ai-msg { background: #334155; color: #f8fafc; align-self: flex-start; }
+        .ai-msg { background: #334155; color: #f8fafc; align-self: flex-start; width: 100%; box-sizing: border-box; }
         
-        /* Alt Mesaj Yazma Paneli */
-        .input-area { display: flex; gap: 6px; }
-        .input-area input { flex: 1; padding: 10px; border-radius: 6px; border: none; background: #334155; color: white; font-size: 13px; width: auto; }
-        .input-area button { background: #16a34a; color: white; border: none; padding: 10px 16px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+        /* Mesaj Yazma Paneli */
+        .input-area { display: flex; gap: 5px; }
+        .input-area input { flex: 1; padding: 8px; border-radius: 6px; border: none; background: #334155; color: white; font-size: 12px; width: auto; }
+        .input-area button { background: #16a34a; color: white; border: none; padding: 8px 14px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 12px; }
         
-        pre { background: #1e293b; padding: 8px; border-radius: 4px; overflow-x: auto; color: #f472b6; font-family: monospace; }
-        code { background: #1e293b; padding: 2px 4px; border-radius: 3px; color: #38bdf8; }
+        /* Kod Blokları ve Kopyala Butonu */
+        .code-container { position: relative; margin: 8px 0; background: #090d16; border-radius: 6px; border: 1px solid #334155; overflow: hidden; }
+        pre { margin: 0; padding: 10px; overflow-x: auto; color: #f472b6; font-family: monospace; font-size: 11px; }
+        code { color: #38bdf8; }
+        .copy-btn { position: absolute; top: 6px; right: 6px; background: #334155; color: #f8fafc; border: none; padding: 3px 6px; font-size: 10px; border-radius: 4px; cursor: pointer; transition: 0.2s; }
+        .copy-btn:hover { background: #0284c7; }
+
+        /* Modal (DOCS Rehber Penceresi) */
+        .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); align-items: center; justify-content: center; }
+        .modal-content { background: #1e293b; padding: 15px; border-radius: 10px; width: 90%; max-width: 500px; max-height: 80vh; overflow-y: auto; color: #f8fafc; font-size: 12px; border: 1px solid #334155; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; padding-bottom: 6px; margin-bottom: 8px; }
+        .modal-header h3 { color: #38bdf8; margin: 0; font-size: 15px; }
+        .close-btn { background: #ef4444; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        .doc-section { margin-bottom: 10px; }
+        .doc-section h4 { color: #4ade80; margin: 0 0 3px 0; font-size: 13px; }
     </style>
 </head>
 <body>
 
     <div class="container">
         <h1>🚀 CodeCraft AI Studio</h1>
-        <div class="subtitle">İnteraktif Yazılım ve Kodlama Eğitmeni</div>
+        <div class="subtitle">İnteraktif Yazılım & Jubbio Bot Eğitmeni</div>
 
         <!-- Üst Ayar Paneli -->
         <div class="settings-panel">
@@ -48,34 +65,67 @@
                     <option value="openai">ChatGPT (GPT-4o-mini)</option>
                     <option value="gemini">Gemini (3.5 Flash-Lite)</option>
                     <option value="anthropic">Claude (3.5 Sonnet)</option>
+                    <option value="groq">Groq (LLaMA 3 70B / Hızlı)</option>
                     <option value="xai">Grok (xAI / OpenRouter)</option>
                 </select>
             </div>
             <div class="setting-row">
                 <label id="keyLabel">🔑 API Key Girin:</label>
-                <input type="password" id="apiKey" placeholder="Seçilen modelin anahtarı zorunludur...">
+                <input type="password" id="apiKey" placeholder="Seçilen modelin anahtarı...">
             </div>
         </div>
 
-        <!-- Odak Dil Seçimi -->
+        <!-- Dil ve Özellik Seçim Butonları -->
         <div class="lang-grid">
             <button class="lang-btn" onclick="dilSec('HTML')">HTML</button>
             <button class="lang-btn" onclick="dilSec('CSS')">CSS</button>
-            <button class="lang-btn" onclick="dilSec('JavaScript')">JavaScript</button>
+            <button class="lang-btn" onclick="dilSec('JavaScript')">JS</button>
             <button class="lang-btn" onclick="dilSec('Python')">Python</button>
             <button class="lang-btn" onclick="dilSec('C++')">C++</button>
             <button class="lang-btn" onclick="dilSec('C#')">C#</button>
+            <button class="lang-btn jubbio" onclick="dilSec('Jubbio Bot')">Jubbio Bot</button>
+            <button class="lang-btn docs-btn" onclick="rehberAc()">📖 DOCS</button>
         </div>
 
         <!-- Sohbet Geçmişi -->
         <div class="chat-box" id="chatBox">
-            <div class="message ai-msg">👋 Selam! Modelini seçip API anahtarını girdikten sonra yukarıdan bir programlama dili seç ve öğrenmeye başla! Sana sıfırdan profesyonel düzeyde kodlama öğreteceğim.</div>
+            <div class="message ai-msg">👋 Selam! Modelini seçip API anahtarını girdikten sonra yukarıdan bir dil veya <b>Jubbio Bot</b> seçip öğrenmeye başlayabilirsin! Kod bloklarındaki 📄 kopyala butonunu kullanabilirsin.</div>
         </div>
 
         <!-- Mesaj Gönderme Alanı -->
         <div class="input-area">
-            <input type="text" id="userInput" placeholder="Kodlama ile ilgili bir şey sor veya ders iste..." onkeypress="if(event.key === 'Enter') mesajGonder()">
+            <input type="text" id="userInput" placeholder="Bir şey sor veya ders iste..." onkeypress="if(event.key === 'Enter') mesajGonder()">
             <button onclick="mesajGonder()">Gönder</button>
+        </div>
+    </div>
+
+    <!-- DOCS Modal (Rehber Penceresi) -->
+    <div id="docsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>📖 API Key & Sistem Rehberi (DOCS)</h3>
+                <button class="close-btn" onclick="rehberKapat()">X</button>
+            </div>
+            <div class="doc-section">
+                <h4>1. OpenAI (ChatGPT) API Key Nasıl Alınır?</h4>
+                <p>1. <b>platform.openai.com</b> adresine git ve kayıt ol.<br>2. Sağ üst profilden <b>"API keys"</b> sekmesine tıkla.<br>3. <b>"+ Create new secret key"</b> butonuna basarak anahtarını kopyala.</p>
+            </div>
+            <div class="doc-section">
+                <h4>2. Gemini API Key Nasıl Alınır?</h4>
+                <p>1. <b>aistudio.google.com</b> adresine git.<br>2. Google hesabınla giriş yap ve <b>"Get API Key"</b> butonuna basarak ücretsiz anahtarını oluştur.</p>
+            </div>
+            <div class="doc-section">
+                <h4>3. Claude (Anthropic) API Key Nasıl Alınır?</h4>
+                <p>1. <b>console.anthropic.com</b> adresine git.<br>2. Konsol panelinden <b>"API Keys"</b> bölümüne girip anahtarını üret.</p>
+            </div>
+            <div class="doc-section">
+                <h4>4. Groq API Key Nasıl Alınır?</h4>
+                <p>1. <b>console.groq.com</b> adresine git.<br>2. Panelden <b>"API Keys"</b> sekmesine girip anahtarını oluştur.</p>
+            </div>
+            <div class="doc-section">
+                <h4>5. Grok (xAI / OpenRouter) API Key Nasıl Alınır?</h4>
+                <p>1. <b>openrouter.ai</b> adresine kaydol.<br>2. Hesap ayarlarından <b>"Keys"</b> kısmına gidip yeni bir anahtar oluştur.</p>
+            </div>
         </div>
     </div>
 
@@ -88,27 +138,79 @@
             if(model === 'openai') label.innerText = "🔑 OpenAI Key:";
             else if(model === 'gemini') label.innerText = "🔑 Gemini Key:";
             else if(model === 'anthropic') label.innerText = "🔑 Claude Key:";
+            else if(model === 'groq') label.innerText = "🔑 Groq Key:";
             else if(model === 'xai') label.innerText = "🔑 Grok Key:";
         }
 
         function dilSec(dil) {
             aktifDil = dil;
-            mesajEkle(`Sistem: <b>${dil}</b> odak modu aktif! Artık bu dille ilgili sorularını sorabilir veya sıfırdan ders isteyebilirsin.`, 'ai-msg');
+            mesajEkle(`Sistem: <b>${dil}</b> odak modu aktif! Artık bu alandaki sorularını sorabilir veya doğrudan ders isteyebilirsin.`, 'ai-msg');
+        }
+
+        function rehberAc() { document.getElementById('docsModal').style.display = 'flex'; }
+        function rehberKapat() { document.getElementById('docsModal').style.display = 'none'; }
+
+        function formatlanmisMesaj(htmlIcerik) {
+            let tempDiv = document.createElement('div');
+            tempDiv.innerHTML = htmlIcerik;
+
+            let kodBloklari = tempDiv.innerHTML.match(/```[\s\S]*?```/g);
+            if (kodBloklari) {
+                kodBloklari.forEach(blok => {
+                    let temizKod = blok.replace(/```[a-z]*/g, '').replace(/```/g, '').trim();
+                    let benzersizId = 'code_' + Math.random().toString(36).substr(2, 9);
+                    let kutuHtml = `
+                        <div class="code-container">
+                            <button class="copy-btn" onclick="kopyala('${benzersizId}')">📄 Kopyala</button>
+                            <pre><code id="${benzersizId}">${escapeHtml(temizKod)}</code></pre>
+                        </div>
+                    `;
+                    tempDiv.innerHTML = tempDiv.innerHTML.replace(blok, kutuHtml);
+                });
+            }
+            return tempDiv.innerHTML;
+        }
+
+        function escapeHtml(text) {
+            return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        }
+
+        function kopyala(elementId) {
+            const kodElementi = document.getElementById(elementId);
+            const metin = kodElementi.innerText;
+            navigator.clipboard.writeText(metin).then(() => {
+                const btn = kodElementi.parentElement.previousElementSibling;
+                btn.innerText = "Kopyalandı! ✔️";
+                setTimeout(() => { btn.innerText = "📄 Kopyala"; }, 2000);
+            });
         }
 
         function mesajEkle(metin, sinif) {
             const chatBox = document.getElementById('chatBox');
             const div = document.createElement('div');
             div.className = `message ${sinif}`;
-            div.innerHTML = metin;
+            if(sinif === 'ai-msg') {
+                div.innerHTML = formatlanmisMesaj(metin);
+            } else {
+                div.innerText = metin;
+            }
             chatBox.appendChild(div);
             chatBox.scrollTop = chatBox.scrollHeight;
         }
 
-        const SYSTEM_PROMPT = `Sen kıdemli, sabırlı ve elit bir yazılım eğiticisisin. Kullanıcıya seçtiği programlama dili (HTML, CSS, JavaScript, Python, C++, C#) hakkında asla geçiştirmeyen, derinlemesine, açıklayıcı, profesyonel kod örnekleri ve pratik ipuçları içeren harika interaktif dersler veriyorsun.
+        const SYSTEM_PROMPT = `Sen kıdemli, sabırlı ve elit bir yazılım eğiticisisin. Senin Adın CodeCraft Aİ! Kullanıcıya seçtiği programlama dili veya teknoloji hakkında asla geçiştirmeyen, derinlemesine, açıklayıcı, profesyonel kod örnekleri ve pratik ipuçları içeren interaktif dersler veriyorsun.
+        
+        ÖZEL BİLGİ - JUBBIO BOT MODU:
+        Eğer kullanıcı "Jubbio Bot" seçtiyse veya Jubbio hakkında soru sorarsa şu bilgileri baz alarak öğretim yap:
+        - Jubbio, Global bir sohbet platformudur! Geliştiricisi: İlkay'dır.
+        - Developer Portal adresi: https://jubbio.com/dev
+        - Kullanılan temel kütüphaneler: @jubbio/core ve @jubbio/voice kütüphaneleridir.
+        - Önerilen ve en yaygın kodlama dili: Node.js (JavaScript) ortamıdır.
+        - Kullanıcıya Jubbio bot altyapısı kurma, komut yazma ve event dinleme konusunda Node.js ile profesyonel örnekler ver.
+
         Önemli Kurallar:
-        1. Yanıtlarını düzgün HTML formatında (<b>, <p>, <code>, <pre> etiketleri kullanarak) ver. Markdown üç tırnak bloğu yerine <pre><code> kullan.
-        2. Arkadaş canlısı, yönlendirici ve net ol. Kullanıcının sorduğu kodlama sorularını sabırla yanıtla ve mantığını açıkla.`;
+        1. Kod örneklerini verirken ```javascript ... ``` veya ```python ... ``` gibi markdown blokları kullan. Sistem bunları otomatik olarak kopyala butonlu şık kutulara dönüştürecektir.
+        2. Arkadaş canlısı, yönlendirici ve net ol. Kodların mantığını satır satır açıkla.`;
 
         async function mesajGonder() {
             const apiKey = document.getElementById('apiKey').value.trim();
@@ -117,7 +219,7 @@
             const kullaniciMesaji = input.value.trim();
 
             if(!apiKey) {
-                alert(`⚠️ Lütfen seçtiğiniz model (${modelSecimi.toUpperCase()}) için API anahtarınızı girin!`);
+                alert(`⚠️ Lütfen seçtiğiniz model (${modelSecimi.toUpperCase()}) için API anahtarınızı girin! (DOCS bölümünden nasıl alacağına bakabilirsin)`);
                 return;
             }
             if(!kullaniciMesaji) return;
@@ -137,7 +239,7 @@
             let aiCevap = "";
 
             try {
-                const tamPrompt = `${SYSTEM_PROMPT}\n\nÖğrencinin Seçtiği Odak Dil: ${aktifDil}\nÖğrencinin Mesajı / İsteği: ${kullaniciMesaji}`;
+                const tamPrompt = `${SYSTEM_PROMPT}\n\nÖğrencinin Seçtiği Odak Konu / Dil: ${aktifDil}\nÖğrencinin Mesajı / İsteği: ${kullaniciMesaji}`;
 
                 if (modelSecimi === 'openai') {
                     const res = await fetch("https://api.openai.com/v1/chat/completions", {
@@ -179,12 +281,29 @@
                             model: "claude-3-5-sonnet-20241022",
                             max_tokens: 1500,
                             system: SYSTEM_PROMPT,
-                            messages: [{ role: "user", content: `Odak Dil: ${aktifDil} - İstek: ${kullaniciMesaji}` }]
+                            messages: [{ role: "user", content: `Odak: ${aktifDil} - İstek: ${kullaniciMesaji}` }]
                         })
                     });
                     const data = await res.json();
                     if(data.error) throw new Error(data.error.message);
                     aiCevap = data.content[0].text;
+
+                } else if (modelSecimi === 'groq') {
+                    const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${apiKey}` },
+                        body: JSON.stringify({
+                            model: "llama-3.3-70b-versatile",
+                            messages: [
+                                { role: "system", content: SYSTEM_PROMPT },
+                                { role: "user", content: `Odak: ${aktifDil} - İstek: ${kullaniciMesaji}` }
+                            ],
+                            temperature: 0.7
+                        })
+                    });
+                    const data = await res.json();
+                    if(data.error) throw new Error(data.error.message);
+                    aiCevap = data.choices[0].message.content;
 
                 } else if (modelSecimi === 'xai') {
                     const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
@@ -194,7 +313,7 @@
                             model: "x-ai/grok-2",
                             messages: [
                                 { role: "system", content: SYSTEM_PROMPT },
-                                { role: "user", content: `Odak Dil: ${aktifDil} - İstek: ${kullaniciMesaji}` }
+                                { role: "user", content: `Odak: ${aktifDil} - İstek: ${kullaniciMesaji}` }
                             ]
                         })
                     });
